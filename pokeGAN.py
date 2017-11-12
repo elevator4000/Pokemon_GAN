@@ -14,9 +14,9 @@ from utils import *
 slim = tf.contrib.slim
 
 HEIGHT, WIDTH, CHANNEL = 128, 128, 3
-BATCH_SIZE = 64
-EPOCH = 5000
-os.environ['CUDA_VISIBLE_DEVICES'] = '15'
+BATCH_SIZE = 81
+EPOCH = 20000
+# os.environ['CUDA_VISIBLE_DEVICES'] = '15'
 version = 'newPokemon'
 newPoke_path = './' + version
 
@@ -164,7 +164,7 @@ def discriminator(input, is_train, reuse=False):
 
 def train():
     random_dim = 100
-    print(os.environ['CUDA_VISIBLE_DEVICES'])
+    # print(os.environ['CUDA_VISIBLE_DEVICES'])
     
     with tf.variable_scope('input'):
         #real and fake image placholders
@@ -213,7 +213,8 @@ def train():
     print('batch size: %d, batch num per epoch: %d, epoch num: %d' % (batch_size, batch_num, EPOCH))
     print('start training...')
     for i in range(EPOCH):
-        print(i)
+        #print(i)
+        print("Running epoch {}/{}...".format(i, EPOCH))
         for j in range(batch_num):
             print(j)
             d_iters = 5
@@ -251,34 +252,34 @@ def train():
             imgtest = sess.run(fake_image, feed_dict={random_input: sample_noise, is_train: False})
             # imgtest = imgtest * 255.0
             # imgtest.astype(np.uint8)
-            save_images(imgtest, [8,8] ,newPoke_path + '/epoch' + str(i) + '.jpg')
+            save_images(imgtest, [9,9] ,newPoke_path + '/epoch' + str(i) + '.jpg')
             
             print('train:[%d],d_loss:%f,g_loss:%f' % (i, dLoss, gLoss))
     coord.request_stop()
     coord.join(threads)
 
 
-# def test():
-    # random_dim = 100
-    # with tf.variable_scope('input'):
-        # real_image = tf.placeholder(tf.float32, shape = [None, HEIGHT, WIDTH, CHANNEL], name='real_image')
-        # random_input = tf.placeholder(tf.float32, shape=[None, random_dim], name='rand_input')
-        # is_train = tf.placeholder(tf.bool, name='is_train')
+def test():
+     random_dim = 100
+     with tf.variable_scope('input'):
+         real_image = tf.placeholder(tf.float32, shape = [None, HEIGHT, WIDTH, CHANNEL], name='real_image')
+         random_input = tf.placeholder(tf.float32, shape=[None, random_dim], name='rand_input')
+         is_train = tf.placeholder(tf.bool, name='is_train')
     
-    # # wgan
-    # fake_image = generator(random_input, random_dim, is_train)
-    # real_result = discriminator(real_image, is_train)
-    # fake_result = discriminator(fake_image, is_train, reuse=True)
-    # sess = tf.InteractiveSession()
-    # sess.run(tf.global_variables_initializer())
-    # variables_to_restore = slim.get_variables_to_restore(include=['gen'])
-    # print(variables_to_restore)
-    # saver = tf.train.Saver(variables_to_restore)
-    # ckpt = tf.train.latest_checkpoint('./model/' + version)
-    # saver.restore(sess, ckpt)
+     # wgan
+     fake_image = generator(random_input, random_dim, is_train)
+     real_result = discriminator(real_image, is_train)
+     fake_result = discriminator(fake_image, is_train, reuse=True)
+     sess = tf.InteractiveSession()
+     sess.run(tf.global_variables_initializer())
+     variables_to_restore = slim.get_variables_to_restore(include=['gen'])
+     print(variables_to_restore)
+     saver = tf.train.Saver(variables_to_restore)
+     ckpt = tf.train.latest_checkpoint('./model/' + version)
+     saver.restore(sess, ckpt)
 
 
 if __name__ == "__main__":
-    train()
-    # test()
+     #train()
+     test()
 
